@@ -14,7 +14,7 @@ set -euo pipefail
 
 USERNAME="${INIT_USER:-bruhabruh}"
 PUBKEY_FILE="${PUBKEY_FILE:-$HOME/.ssh/id_rsa.pub}"
-UFW_ALLOW=(22/tcp 80/tcp 443/tcp)
+UFW_ALLOW=(22/tcp)
 
 log() { echo "[init $(date '+%F %T')] $*"; }
 die() { echo "ОШИБКА: $*" >&2; exit 1; }
