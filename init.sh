@@ -1,7 +1,7 @@
 #!/bin/bash
 # Первичная настройка VPS (Debian/Ubuntu). Запускать ЛОКАЛЬНО:
 #   ./init.sh <ip> [ssh-порт]
-#   bash <(curl -fsSL <url>/init.sh) <ip> [ssh-порт]
+#   curl -fsSL https://raw.githubusercontent.com/BruhaBruh/initsh/main/init.sh | bash -s -- <ip> [ssh-порт]
 # Скрипт сам зайдёт на сервер под root, создаст пользователя, положит твой
 # публичный ключ, проверит вход по ключу и только потом закроет root и пароли.
 # Повторный запуск безопасен (идемпотентно), пока root ещё пускают.
@@ -158,7 +158,7 @@ main() {
     trap "ssh -o ControlPath=$(printf %q "$ctl/root") -O exit $(printf %q "root@$host") 2>/dev/null; rm -rf $(printf %q "$ctl")" EXIT
     local ssh_opts=(-p "$port" -o StrictHostKeyChecking=accept-new)
     local root_ssh=(ssh "${ssh_opts[@]}" -o ControlMaster=auto -o ControlPath="$ctl/root" -o ControlPersist=120 "root@$host")
-    local user_ssh=(ssh "${ssh_opts[@]}" -o ControlPath=none -o BatchMode=yes -o IdentitiesOnly=yes -i "${PUBKEY_FILE%.pub}" "$USERNAME@$host")
+    local user_ssh=(ssh -n "${ssh_opts[@]}" -o ControlPath=none -o BatchMode=yes -o IdentitiesOnly=yes -i "${PUBKEY_FILE%.pub}" "$USERNAME@$host")
 
     log "Фаза 1 на $host"
     "${root_ssh[@]}" "bash -s -- $(printf %q "$pass_hash") $(printf %q "$pubkey")" < <(remote_payload remote_phase1)
@@ -173,7 +173,7 @@ main() {
     log "Финальная проверка"
     # при провале не закрываем root-сессию: через неё можно откатить конфиг
     "${user_ssh[@]}" true || { trap - EXIT; die "после фазы 2 $USERNAME не входит! Открытая root-сессия ещё жива 120 сек: ssh -o ControlPath=$ctl/root root@$host"; }
-    if ssh "${ssh_opts[@]}" -o ControlPath=none -o BatchMode=yes "root@$host" true 2>/dev/null; then
+    if ssh -n "${ssh_opts[@]}" -o ControlPath=none -o BatchMode=yes "root@$host" true 2>/dev/null; then
         die "root всё ещё пускают"
     fi
 

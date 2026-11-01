@@ -20,11 +20,13 @@
 
 ## Install
 
-```bash
-bash <(curl -fsSL https://raw.githubusercontent.com/BruhaBruh/initsh/main/init.sh) <ip>
+```sh
+curl -fsSL https://raw.githubusercontent.com/BruhaBruh/initsh/main/init.sh | bash -s -- <ip>
 ```
 
-Нестандартный SSH-порт передаётся вторым аргументом: `... <ip> 2222`.
+Работает в bash, zsh и fish.
+
+Нестандартный SSH-порт передаётся вторым аргументом: `... | bash -s -- <ip> 2222`.
 
 Можно и без curl, из клона репозитория: `./init.sh <ip>`.
 
@@ -37,8 +39,9 @@ bash <(curl -fsSL https://raw.githubusercontent.com/BruhaBruh/initsh/main/init.s
 | `INIT_USER`   | `bruhabruh`           | имя создаваемого пользователя  |
 | `PUBKEY_FILE` | `~/.ssh/id_rsa.pub`   | какой публичный ключ положить  |
 
-```bash
-INIT_USER=deploy PUBKEY_FILE=~/.ssh/id_ed25519.pub bash <(curl -fsSL .../init.sh) 203.0.113.10
+```sh
+curl -fsSL https://raw.githubusercontent.com/BruhaBruh/initsh/main/init.sh \
+  | INIT_USER=deploy PUBKEY_FILE=~/.ssh/id_ed25519.pub bash -s -- 203.0.113.10
 ```
 
 Список открытых портов задаётся массивом `UFW_ALLOW` в начале `init.sh`.
